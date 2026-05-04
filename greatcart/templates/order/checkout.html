@@ -1,0 +1,174 @@
+{% extends "../home.html" %}
+{% load static %}
+
+{% block title %}{% endblock title %}
+
+{% block content %}
+
+
+ <!-- Page Add Section Begin -->
+    <section class="page-add">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="page-breadcrumb">
+                        <h3>Checkout </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Page Add Section End -->
+
+    <!-- Contact Section Begin -->
+    <div class="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id='checkout-form' class="contact-form" novalidate method ="POST" >
+                        {% csrf_token %}
+                        <div class="row">
+                            {% if messages %}
+                            <div class="col-lg-12 py-2" >
+                                {% include "../message.html" %}
+                            </div>
+                            {% endif %}
+                            <div class="col-lg-12 py-2" >
+                                <input name ="first_name" type="text" placeholder="Enter first_name">
+                                <small id="error_first_name" class= "text-danger"></small>
+                                
+                            </div>
+                            <div class="col-lg-12 py-2" >
+                                <input name ="last_name" type="text" placeholder="Enter last_name">
+                                <small id="error_last_name" class= "text-danger"></small>
+                            </div>
+                            <div class="col-lg-12 py-2" >
+                                <input name ="email" type="text" placeholder="Enter Email Address">
+                                <small id="error_email" class= "text-danger"></small>
+                            </div>
+                            <div class="col-lg-12 py-2" >
+                                <input name ="city" type="text" placeholder="Enter City">
+                                <small id="error_city" class= "text-danger"></small>
+                            </div>
+                            <div class="col-lg-12 py-2">
+                                <input name ="zip_code" type="text" placeholder="Enter Zip Code">
+                                <small id="error_zip_code" class= "text-danger"></small>
+                            </div>
+                            <div class="col-lg-12 py-2" >
+                                <input name ="address" type="text" placeholder="Enter Shipping Address">
+                                <small id="error_address" class= "text-danger"></small>
+                            </div>
+                            <div class="col-lg-12 text-right">
+                                <button class="btn-block" type="submit">Pay</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+
+{% block extra_scripts %}
+
+
+
+<script>
+const form = document.getElementById('checkout-form');
+const csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+const validateFormAndCheckout = () => {
+    const url = '/checkout/';
+    
+    // 1. Clear previous errors before starting new validation
+    document.querySelectorAll('.text-danger').forEach(el => el.innerText = '');
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            'X-CSRFToken': csrfmiddlewaretoken
+        },
+        body: new FormData(form)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Success! Redirecting or processing payment...");
+            // You can redirect here: window.location.href = '/success/';
+        } else {
+            let errors = data.errors;
+            Object.keys(errors).forEach(key => {
+                // 2. FIXED: Use backticks `` for template literals
+                let errorElement = document.getElementById(`error_${key}`);
+                if (errorElement) {
+                    errorElement.innerText = errors[key].join(' ');
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.log("Network Error:", error);
+    });
+}
+
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    validateFormAndCheckout();
+});
+</script>
+
+
+
+{% comment %} <script>
+    const form = document.getElementById('checkout-form');
+    const csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    let formIsValid = false;
+
+    const validateFormAndCheckout = () => {
+        const url = '/checkout/';
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': csrfmiddlewaretoken
+            },
+            body: new FormData(form)
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                formIsValid = true;
+            }
+            else{
+                let errors = data.errors;
+                formIsValid = false;
+                Object.keys(errors).forEach(key => {
+                    document.getElementById('error_${key}').innerText = errors[key].join('');
+                })
+
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        validateFormAndCheckout();
+        if (formIsValid) {
+            console.log('valid');
+        }
+        else{
+            console.log('invalid');
+        }
+    })
+
+</script> {% endcomment %}
+
+
+{% endblock extra_scripts %}  
+
