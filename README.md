@@ -95,6 +95,4 @@ e-com_Project/
 | Checkout   | `/checkout/` |
 | Admin      | `/admin/` |
 
-## License
 
-Specify your license here (e.g. MIT, Apache-2.0) if you publish the project publicly.
